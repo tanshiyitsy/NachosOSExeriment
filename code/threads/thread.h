@@ -88,7 +88,8 @@ class Thread {
     void *machineState[MachineStateSize];  // all registers except for stackTop
 
   public:
-    Thread(char* debugName);		// initialize a Thread 
+    Thread(char* debugName, int priority);		// initialize a Thread 
+    Thread(char* debugName);
     ~Thread(); 				// deallocate a Thread
 					// NOTE -- thread being deleted
 					// must not be running when delete 
@@ -116,6 +117,7 @@ class Thread {
     void Print() { printf("%s, ", name); }
     int pid;  // processID
     int uid;   // user ID
+    int base_priority;
 
   private:
     // some of the private data for this class is listed above

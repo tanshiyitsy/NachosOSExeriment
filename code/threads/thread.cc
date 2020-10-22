@@ -40,12 +40,13 @@ Thread *thread_pool[PID_MAX];
 // stack 存储栈底，用于 栈溢出 检查
 //----------------------------------------------------------------------
 
-Thread::Thread(char* threadName)
+Thread::Thread(char* threadName, int priority)
 {
     name = threadName;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    base_priority = priority;
     uid = getuid();  // 获取Linux当前的登录用户作为UID
     pid = -1;
     // 分配进程号,这里会不会两个线程同时赋值为1 呢
@@ -65,6 +66,35 @@ Thread::Thread(char* threadName)
         thread_pool[pid] = this;
     }
 
+#ifdef USER_PROGRAM
+    space = NULL;
+#endif
+}
+Thread::Thread(char* threadName)
+{
+    name = threadName;
+    stackTop = NULL;
+    stack = NULL;
+    status = JUST_CREATED;
+    base_priority = 0;
+    uid = getuid();  // 获取Linux当前的登录用户作为UID
+    pid = -1;
+    // 分配进程号,这里会不会两个线程同时赋值为1 呢
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    for(int i = 0;i < PID_MAX;i++){
+        if(pid_pool[i] == 0){
+            pid_pool[i] = 1;
+            pid = i;
+            break;
+        }
+    }
+    (void) interrupt->SetLevel(oldLevel);
+    if(pid == -1){
+        printf("fail to create thread:%s, reason:there is no process number available\n", threadName);
+    }
+    else{
+        thread_pool[pid] = this;
+    }
 
 #ifdef USER_PROGRAM
     space = NULL;

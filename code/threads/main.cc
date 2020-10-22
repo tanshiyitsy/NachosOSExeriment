@@ -93,6 +93,7 @@ main(int argc, char **argv)
     int ac = argc;
     char **av = argv;
 #ifdef THREADS
+    ThreadTest();
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
       argCount = 1;
       //printf("argv=%s\n", argv[0]);
@@ -115,13 +116,11 @@ main(int argc, char **argv)
 
     // ThreadTest();
 #endif
-  	argc = ac;
-  	argv = av;
+  	// argc = ac;
+  	// argv = av;
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
 	argCount = 1;
-		printf("hahahhatsytsy \n");
         if (!strcmp(*argv, "-z"))               // print copyright
-        	printf("hahahahha\n");
             printf (copyright);
 
 #ifdef USER_PROGRAM

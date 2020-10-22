@@ -50,17 +50,35 @@ Scheduler::~Scheduler()
 //	"thread" is the thread to be put on the ready list.
 //----------------------------------------------------------------------
 
-void
-Scheduler::ReadyToRun (Thread *thread)
+
+/*void Scheduler::ReadyToRun (Thread *thread)
 {
+    // ReadyToRunOrigin
     // 这里就绪队列发生变化，所以需要检查一下是否需要抢占CPU
     DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
 
     // 如果是从阻塞状态来的，不需要从阻塞队列删除吗？
+    // 目前这个只从FORK，YIELD过来
     thread->setStatus(READY);
     readyList->Append((void *)thread);
-}
+    // ReadyToRunPriority(thread);
+}*/
 
+void Scheduler::ReadyToRun(Thread *thread)
+{
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    // 判断一下当前线程优先级和CPU上的,直接抢占
+    if(thread->base_priority < currentThread->base_priority){
+        ReadyToRun(currentThread);
+        Run(thread);
+    }
+    // 否则加入就绪队列
+    else{
+        thread->setStatus(READY);
+        readyList->SortedInsert(thread, thread->base_priority);
+    }
+    (void) interrupt->SetLevel(oldLevel);
+}
 //----------------------------------------------------------------------
 // Scheduler::FindNextToRun
 // 	Return the next thread to be scheduled onto the CPU.
@@ -69,8 +87,7 @@ Scheduler::ReadyToRun (Thread *thread)
 //	Thread is removed from the ready list.
 //----------------------------------------------------------------------
 
-Thread *
-Scheduler::FindNextToRun ()
+Thread *Scheduler::FindNextToRun ()
 {
     return (Thread *)readyList->Remove();
 }

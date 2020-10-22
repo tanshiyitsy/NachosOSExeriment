@@ -33,4 +33,18 @@ class Scheduler {
 				// but not running
 };
 
+
+// class Scheduler {
+//   public:
+//     Scheduler();
+//     ~Scheduler();
+
+//     void ReadyToRunPriority(Thread *thread);
+//     Thread* FindNextToRunPriority();
+//     void Run(Thread* nextThread);
+//     void Print();
+
+//   private:
+//     List *readyList;
+// }
 #endif // SCHEDULER_H
