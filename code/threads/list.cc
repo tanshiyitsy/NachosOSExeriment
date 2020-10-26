@@ -178,7 +178,6 @@ List::IsEmpty()
 //	"sortKey" is the priority of the item.
 //----------------------------------------------------------------------
 
-// 按照sortKey从小到大排列
 void
 List::SortedInsert(void *item, int sortKey)
 {
@@ -236,7 +235,7 @@ List::SortedRemove(int *keyPtr)
     } else {
         first = element->next;
     }
-    if (keyPtr != NULL)   // 这里咋还把keyPtr重新赋值了？
+    if (keyPtr != NULL)
         *keyPtr = element->key;
     delete element;
     numInList--;
@@ -258,17 +257,17 @@ List::Remove(void *item)
         removed = Remove();
         ASSERT(item == removed);
     } else {
-	    prev = first;
+	prev = first;
         for (ptr = first->next; ptr != NULL; prev = ptr, ptr = ptr->next) {
             if (item == ptr->item) {
-        		prev->next = ptr->next;
-        		if (prev->next == NULL) {
-        		    last = prev;
-        		}
-        		delete ptr;
-        		numInList--;
-        		break;
-            }
+		prev->next = ptr->next;
+		if (prev->next == NULL) {
+		    last = prev;
+		}
+		delete ptr;
+		numInList--;
+		break;
+	    }
         }
 	ASSERT(ptr != NULL);	// should always find item!
     }

@@ -31,9 +31,7 @@ SimpleThread(int which)
     int num;
     
     for (num = 0; num < 5; num++) {
-	    printf("*** thread %d looped %d times\n", which, num); 
-        printf("thread name:%s pid:%d uid:%d\n", currentThread->getName(), currentThread->getPid(), currentThread->getUid());
-        // 每运行一次当前线程，就让出CPU，让另一个线程继续执行
+	printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
     }
 }
@@ -49,16 +47,10 @@ ThreadTest1()
 {
     DEBUG('t', "Entering ThreadTest1");
 
-    Thread *t = new Thread("forked thread"); // 声明一个新的线程
-    if(t->pid != -1){
-        int id = t->getPid();
-        printf("this thread pid is id:%d\n", id);
-        t->Fork(SimpleThread, (void*)1); // 线程创建并调用SimpleThread方法，标识为1
-        SimpleThread(0);  // 主线程自己调用SimpleThread方法，传入参数为当前执行该方法的线程标识。当前线程为0，新创建的线程为1
-    }
-    else{
-        printf("the new pid number is %d\n", t->pid);
-    }
+    Thread *t = new Thread("forked thread");
+
+    t->Fork(SimpleThread, (void*)1);
+    SimpleThread(0);
 }
 
 //----------------------------------------------------------------------
@@ -69,11 +61,11 @@ ThreadTest1()
 void
 ThreadTest()
 {
-    switch (testnum) { // 判断传入的测试线程数
+    switch (testnum) {
     case 1:
 	ThreadTest1();
 	break;
-    default: // 不为1的话就打印
+    default:
 	printf("No test specified.\n");
 	break;
     }

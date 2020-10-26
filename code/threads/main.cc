@@ -55,10 +55,7 @@
 
 #ifdef THREADS
 extern int testnum;
-extern int pid_pool[PID_MAX];
-extern Thread *thread_pool[PID_MAX];
 #endif
-
 
 // External functions used by this file
 
@@ -90,40 +87,28 @@ main(int argc, char **argv)
     DEBUG('t', "Entering main");
     (void) Initialize(argc, argv);
     
-    int ac = argc;
-    char **av = argv;
 #ifdef THREADS
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
-      argCount = 1;
-      //printf("argv=%s\n", argv[0]);
-      if(!strcmp(argv[0],"q")){
-      		testnum = atoi(argv[1]); // 将q 后的参数为测试线程数
+    	printf("hahahahahatansy   test\n");
+	      argCount = 1;
+	      switch (argv[0][1]) {
+	      case 'q':
+	        testnum = atoi(argv[1]);
 	        argCount++;
+	        break;
+	      default:
+	        testnum = 1;
+	        break;
       }
-      else if(!strcmp(argv[0], "ts")){
-      	// PID，UID，PNAME，TTY，TIME，CMD
-      	printf("PID\tUID\tPNAME\tTIME\n");
-      	for(int i = 0;i < PID_MAX;i++){
-      		if(pid_pool[i] != 0){
-      			printf("%d\t%d\t%s\t00:00:00\n",thread_pool[i]->getPid(),thread_pool[i]->getUid(),thread_pool[i]->getName());
-      		}
-      	}
+    }
 
-      }
-      
-  	}
-
-    // ThreadTest();
+    ThreadTest();
 #endif
-  	argc = ac;
-  	argv = av;
+
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
 	argCount = 1;
-		printf("hahahhatsytsy \n");
         if (!strcmp(*argv, "-z"))               // print copyright
-        	printf("hahahahha\n");
             printf (copyright);
-
 #ifdef USER_PROGRAM
         if (!strcmp(*argv, "-x")) {        	// run a user program
 	    ASSERT(argc > 1);
@@ -175,9 +160,6 @@ main(int argc, char **argv)
 #endif // NETWORK
     }
 
-    /*
-		这里不会返回，最后的return也不会执行，因为nachos是一个单线程程序
-    */
     currentThread->Finish();	// NOTE: if the procedure "main" 
 				// returns, then the program "nachos"
 				// will exit (as any other normal program

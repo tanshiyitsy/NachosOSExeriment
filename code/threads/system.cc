@@ -91,14 +91,14 @@ Initialize(int argc, char **argv)
     double rely = 1;		// network reliability
     int netname = 0;		// UNIX socket name
 #endif
-    // 判断命令参数，每循环一次，ac减一，av向后挪一个
+    
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
 	argCount = 1;
-	if (!strcmp(*argv, "-d")) { // 如果有参数等于-d
+	if (!strcmp(*argv, "-d")) {
 	    if (argc == 1)
-		debugArgs = "+";	//并且该参数为最后一个 turn on all debug flags
+		debugArgs = "+";	// turn on all debug flags
 	    else {
-	    	debugArgs = *(argv + 1); // debug的值为-d之后的值
+	    	debugArgs = *(argv + 1);
 	    	argCount = 2;
 	    }
 	} else if (!strcmp(*argv, "-rs")) {

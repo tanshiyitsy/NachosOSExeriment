@@ -53,10 +53,8 @@ Scheduler::~Scheduler()
 void
 Scheduler::ReadyToRun (Thread *thread)
 {
-    // 这里就绪队列发生变化，所以需要检查一下是否需要抢占CPU
     DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
 
-    // 如果是从阻塞状态来的，不需要从阻塞队列删除吗？
     thread->setStatus(READY);
     readyList->Append((void *)thread);
 }

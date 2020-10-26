@@ -19,16 +19,11 @@
 #include "switch.h"
 #include "synch.h"
 #include "system.h"
-#include "unistd.h"
-
-
-
 
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
 					// execution stack, for detecting 
 					// stack overflows
-int pid_pool[PID_MAX];
-Thread *thread_pool[PID_MAX];
+
 //----------------------------------------------------------------------
 // Thread::Thread
 // 	Initialize a thread control block, so that we can then call
@@ -46,26 +41,6 @@ Thread::Thread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    uid = getuid();  // 获取Linux当前的登录用户作为UID
-    pid = -1;
-    // 分配进程号,这里会不会两个线程同时赋值为1 呢
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
-    for(int i = 0;i < PID_MAX;i++){
-        if(pid_pool[i] == 0){
-            pid_pool[i] = 1;
-            pid = i;
-            break;
-        }
-    }
-    (void) interrupt->SetLevel(oldLevel);
-    if(pid == -1){
-        printf("fail to create thread:%s, reason:there is no process number available\n", threadName);
-    }
-    else{
-        thread_pool[pid] = this;
-    }
-
-
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -126,10 +101,10 @@ Thread::Fork(VoidFunctionPtr func, void *arg)
     */
     StackAllocate(func, arg);
 
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);  // 关闭中断状态
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); // 关闭中断状态
     scheduler->ReadyToRun(this);	// ReadyToRun assumes that interrupts 
 					// are disabled!
-    (void) interrupt->SetLevel(oldLevel);  // 中断恢复
+    (void) interrupt->SetLevel(oldLevel); // 中断恢复
 }    
 
 //----------------------------------------------------------------------
@@ -165,7 +140,7 @@ Thread::CheckOverflow()
 //
 // 	NOTE: we don't immediately de-allocate the thread data structure 
 //	or the execution stack, because we're still running in the thread 
-//	and we're still on the stack!  Instead, we set "thr     eadToBeDestroyed", 
+//	and we're still on the stack!  Instead, we set "threadToBeDestroyed", 
 //	so that Scheduler::Run() will call the destructor, once we're
 //	running in the context of a different thread.
 //
@@ -173,10 +148,8 @@ Thread::CheckOverflow()
 //	between setting threadToBeDestroyed, and going to sleep.
 //----------------------------------------------------------------------
 
-//
 // 该线程的结束实际上是在下一个线程完成上下文切换之后
-// 在scheduler::Run(Thread)中，切换完上下文后，会判断threadToBeDestroyed这个变量是否为空
-// 不为空的的话，会删除该变量指向的线程
+// 
 void
 Thread::Finish ()
 {
@@ -186,9 +159,6 @@ Thread::Finish ()
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
     
     threadToBeDestroyed = currentThread;
-    pid_pool[currentThread->pid] = 0;  // delete pid
-    thread_pool[currentThread->pid] = NULL;
-    // 这里的Sleep是Thread实现的那个阻塞的Sleep吗？===================================
     Sleep();					// invokes SWITCH
     // not reached
 }
@@ -215,16 +185,16 @@ void
 Thread::Yield ()
 {
     Thread *nextThread;
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); // 中断关闭
     
-    ASSERT(this == currentThread);
+    ASSERT(this == currentThread); // 断言执行Yield的线程时当前线程
     
     DEBUG('t', "Yielding thread \"%s\"\n", getName());
     
     nextThread = scheduler->FindNextToRun();
     if (nextThread != NULL) {
-	scheduler->ReadyToRun(this); // 这里为什么不是nextThread, 将当前线程添加至等待队列中
-	scheduler->Run(nextThread);
+    	scheduler->ReadyToRun(this);
+    	scheduler->Run(nextThread);
     }
     (void) interrupt->SetLevel(oldLevel);
 }
