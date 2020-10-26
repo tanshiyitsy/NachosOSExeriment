@@ -191,6 +191,11 @@ SWITCH:
 
 	.SPACE  $TEXT$
 	.SUBSPA $CODE$
+# ThreadRoot (int InitialPC, int InitialArg, int WhenDonePC, int StartupPC) 
+# InitialPC 指明新生成线程的入口函数地址， 
+# InitialArg 是该入口函数的参数；
+# StartupPC 是在运行该线程是需要作的一些初始化工作，比如开中断；
+#  而 WhenDonePC 是当该线程运行结束时需要作的一些后续工作
 ThreadRoot
 	.PROC
 	.CALLINFO CALLER,FRAME=0

@@ -147,6 +147,7 @@ Interrupt::Enable()
 //		interrupts are re-enabled
 //		a user instruction is executed
 //----------------------------------------------------------------------
+// 将系统态和用户态的时间分开进行处理
 void
 Interrupt::OneTick()
 {
@@ -287,6 +288,9 @@ Interrupt::Schedule(VoidFunctionPtr handler, int arg, int fromNow, IntType type)
 //		interrupt is just the time-slice daemon, however, then 
 //		we're done!
 //----------------------------------------------------------------------
+// 当系统处于Idle状态时，时钟直接跳到 中断等待队列 第一项规定的时间
+// 而是否需要这样做，由advanceClock标志决定
+// 功能：测试当前等待中断队列中是否要有中断发生
 bool
 Interrupt::CheckIfDue(bool advanceClock)
 {
